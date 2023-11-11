@@ -541,10 +541,14 @@ class CodeGeneratorData:
         use_only_erplibre_format = True
 
         if use_only_erplibre_format:
+            cmd = f"cd {workspace_path};cp .editorconfig {self.module_path}/"
+            self.subprocess_cmd(cmd)
             cmd = (
                 f"cd {workspace_path};./script/maintenance/format.sh"
                 f" {self.module_path}"
             )
+            self.subprocess_cmd(cmd)
+            cmd = f"cd {workspace_path};rm {self.module_path}/.editorconfig "
             self.subprocess_cmd(cmd)
 
             _logger.info("End of auto_format")
