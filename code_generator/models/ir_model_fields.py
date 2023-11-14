@@ -217,6 +217,8 @@ class IrModelFields(models.Model):
 
     field_context = fields.Char()
 
+    force_domain = fields.Char()
+
     force_widget = fields.Selection(
         FORCE_WIDGET_TYPES,
         string="Force widget",

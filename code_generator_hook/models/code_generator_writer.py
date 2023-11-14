@@ -1442,7 +1442,7 @@ class CodeGeneratorWriter(models.Model):
 
             field_domain = extra_info.get("domain")
             if field_domain:
-                dct_field_value["domain"] = field_domain
+                dct_field_value["force_domain"] = field_domain
 
             if field_id.help:
                 dct_field_value["help"] = field_id.help

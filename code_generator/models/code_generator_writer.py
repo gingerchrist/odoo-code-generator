@@ -2939,6 +2939,8 @@ _logger = logging.getLogger(__name__)"""
                     dct_field_attribute["domain"] = f2export.domain
                 elif domain_info and domain_info != "[]":
                     dct_field_attribute["domain"] = domain_info
+                if f2export.force_domain:
+                    dct_field_attribute["domain"] = f2export.force_domain
 
                 if (
                     f2export.ttype == "many2one"
