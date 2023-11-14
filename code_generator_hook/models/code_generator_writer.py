@@ -1476,14 +1476,17 @@ class CodeGeneratorWriter(models.Model):
                         "html",
                     ):
                         # TODO how better support, remove the quote when it's a variable
-                        dct_field_value["default"] = ("noquote", default_value)
-                        if (
-                            type(default_value) is str
-                            and "\n" in default_value
-                        ):
-                            _logger.error(
-                                "Cannot support endline in default_value"
-                                f" '{default_value}', ast: '{ast_attr}'"
+                        if type(default_value) is str:
+                            if "\n" in default_value:
+                                _logger.error(
+                                    "Cannot support endline in default_value"
+                                    f" '{default_value}', ast: '{ast_attr}'"
+                                )
+                            dct_field_value["default_lambda"] = default_value
+                        else:
+                            dct_field_value["default"] = (
+                                "noquote",
+                                default_value,
                             )
                     else:
                         dct_field_value["default"] = default_value

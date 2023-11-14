@@ -3017,8 +3017,9 @@ _logger = logging.getLogger(__name__)"""
             # Get default value
             default_lambda = f2export.get_default_lambda()
             if default_lambda:
-                dct_field_attribute["default"] = default_lambda.replace(
-                    "'", '"'
+                dct_field_attribute["default"] = (
+                    "noquote",
+                    default_lambda.replace("'", '"'),
                 )
             else:
                 default_value = None
@@ -3140,25 +3141,19 @@ _logger = logging.getLogger(__name__)"""
                 elif key == "ondelete":
                     lst_last_field_attribute.append(f"{key}='{value}'")
                 else:
-                    if (
-                        value.startswith("lambda")
-                        or value.startswith("date")
-                        or value.startswith("datetime")
-                    ):
-                        # Exception for lambda
-                        lst_field_attribute.append(f"{key}={value}")
+                    if "\n" in copy_value:
+                        has_endline = True
+                        lst_field_attribute.append(f"{key}='''{copy_value}'''")
                     else:
-                        if "\n" in copy_value:
-                            has_endline = True
-                            lst_field_attribute.append(
-                                f"{key}='''{copy_value}'''"
-                            )
-                        else:
-                            lst_field_attribute.append(f"{key}='{copy_value}'")
-            elif type(value) is list:
+                        lst_field_attribute.append(f"{key}='{copy_value}'")
+            elif type(value) is list or type(value) is tuple:
                 # TODO find another solution than removing \n, this cause error with cw.CodeWriter
-                new_value = str(value).replace("\n", " ")
-                lst_field_attribute.append(f"{key}={new_value}")
+                if key == "default" and value[0] == "noquote":
+                    # Exception for lambda
+                    lst_field_attribute.append(f"{key}={value[1]}")
+                else:
+                    new_value = str(value).replace("\n", " ")
+                    lst_field_attribute.append(f"{key}={new_value}")
             else:
                 lst_field_attribute.append(f"{key}={value}")
 
