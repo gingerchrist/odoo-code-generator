@@ -144,6 +144,8 @@ class CodeGeneratorWriter(models.Model):
                             )
                         if view_item_id.password:
                             cw.emit(f'"password": {view_item_id.password},')
+                    elif view_item_id.item_type == "#text":
+                        cw.emit(f'"inner_text": "{view_item_id.inner_text}",')
                     elif view_item_id.item_type in ("group", "div"):
                         if view_item_id.attrs:
                             cw.emit(f'"attrs": "{view_item_id.attrs}",')

@@ -2121,11 +2121,48 @@ pass''',
                 dct_item["attrs"] = item.attrs
             dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
             item_xml = E.div(dct_item, *lst_child_update)
+        elif item.item_type == "h1":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.h1(dct_item, *lst_child_update)
+        elif item.item_type == "h2":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.h2(dct_item, *lst_child_update)
+        elif item.item_type == "h3":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.h3(dct_item, *lst_child_update)
+        elif item.item_type == "h4":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.h4(dct_item, *lst_child_update)
+        elif item.item_type == "h5":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.h5(dct_item, *lst_child_update)
+        elif item.item_type == "page":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.page(dct_item, *lst_child_update)
+        elif item.item_type == "notebook":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            item_xml = E.notebook(dct_item, *lst_child_update)
         elif item.item_type == "templates":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
             dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
             item_xml = E.templates(dct_item, *lst_child_update)
+        elif item.item_type == "#text":
+            item_xml = item.inner_text
         else:
             _logger.warning(f"View item '{item.item_type}' is not supported.")
         return item_xml
@@ -2239,20 +2276,19 @@ pass''',
             lst_item_header = sorted(lst_item_header, key=lambda a: a.sequence)
             lst_child = []
             for item_header in lst_item_header:
-                if item_header.item_type == "field":
-                    item = E.field()
-                    # TODO field in header
-                elif item_header.item_type == "button":
-                    item = self._generate_xml_button(item_header, model_id)
+                if item_header.item_type in ("field", "button"):
+                    item = self._generate_xml_object(item_header, model_id)
                 else:
                     _logger.warning(
                         f"Item header type '{item_header.item_type}' is not"
                         " supported."
                     )
                     continue
-                lst_child.append(item)
-            header_xml = E.header({}, *lst_child)
-            lst_item_form.append(header_xml)
+                if item is not None:
+                    lst_child.append(item)
+            if lst_child:
+                header_xml = E.header({}, *lst_child)
+                lst_item_form.append(header_xml)
 
         if lst_item_title:
             lst_item_title = sorted(lst_item_title, key=lambda a: a.sequence)
@@ -2290,7 +2326,34 @@ pass''',
                         item_body, lst_item_form_sheet, dct_replace
                     )
                     lst_item_form_sheet.append(item_xml)
-                elif item_body.item_type in ("div", "group", "templates"):
+                elif item_body.item_type in ("button", "html"):
+                    if not item_body.child_id:
+                        # Nothing inside
+                        item_xml = self._generate_xml_object(
+                            item_body, model_id
+                        )
+                    else:
+                        # Something inside
+                        item_xml = self._generate_xml_group_div(
+                            item_body,
+                            lst_item_form_sheet,
+                            dct_replace,
+                            model_id,
+                        )
+                    if item_xml is not None:
+                        lst_item_form_sheet.append(item_xml)
+                elif item_body.item_type in (
+                    "div",
+                    "group",
+                    "templates",
+                    "h1",
+                    "h2",
+                    "h3",
+                    "h4",
+                    "h5",
+                    "notebook",
+                    "page",
+                ):
                     if not item_body.child_id:
                         _logger.warning(
                             f"Item type '{item_body.item_type}' missing child."

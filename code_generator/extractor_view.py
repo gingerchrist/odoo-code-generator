@@ -756,31 +756,32 @@ class ExtractorView:
             "sequence": sequence,
         }
 
-        for key, value in node.attributes.items():
-            if key == "t-name":
-                dct_attributes["t_name"] = value
-            elif key == "t-attf-class":
-                dct_attributes["t_attf_class"] = value
-            elif key == "t-if":
-                dct_attributes["t_if"] = value
-            elif key == "title":
-                dct_attributes["title"] = value
-            elif key == "aria-label":
-                dct_attributes["aria_label"] = value
-            elif key == "role":
-                dct_attributes["role"] = value
-            elif key == "name":
-                dct_attributes["name"] = value
-            elif key == "widget":
-                dct_attributes["widget"] = value
-            elif key == "domain":
-                dct_attributes["domain"] = value
-            elif key == "context":
-                dct_attributes["context"] = value
-            elif key == "class":
-                dct_attributes["class_attr"] = value
-            elif key == "string":
-                dct_attributes["label"] = value
+        if node.attributes:
+            for key, value in node.attributes.items():
+                if key == "t-name":
+                    dct_attributes["t_name"] = value
+                elif key == "t-attf-class":
+                    dct_attributes["t_attf_class"] = value
+                elif key == "t-if":
+                    dct_attributes["t_if"] = value
+                elif key == "title":
+                    dct_attributes["title"] = value
+                elif key == "aria-label":
+                    dct_attributes["aria_label"] = value
+                elif key == "role":
+                    dct_attributes["role"] = value
+                elif key == "name":
+                    dct_attributes["name"] = value
+                elif key == "widget":
+                    dct_attributes["widget"] = value
+                elif key == "domain":
+                    dct_attributes["domain"] = value
+                elif key == "context":
+                    dct_attributes["context"] = value
+                elif key == "class":
+                    dct_attributes["class_attr"] = value
+                elif key == "string":
+                    dct_attributes["label"] = value
 
         if parent:
             dct_attributes["parent_id"] = parent.id
@@ -794,6 +795,13 @@ class ExtractorView:
             "li",
             "strong",
             "i",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "notebook",
+            "page",
         ):
             if lst_node:
                 # Check cached of nodes
@@ -854,6 +862,8 @@ class ExtractorView:
                     dct_attributes["expr"] = value
                 elif key == "position":
                     dct_attributes["position"] = value
+        elif node.nodeName == "#text":
+            dct_attributes["inner_text"] = node.data.strip()
         elif node.nodeName == "separator":
             # Accumulate nodes
             return True
@@ -868,10 +878,11 @@ class ExtractorView:
             return
 
         # TODO use external function to get attributes items to remove duplicate code, search "node.attributes.items()"
-        for key, value in node.attributes.items():
-            attributes_name = dct_key_keep.get(key)
-            if attributes_name:
-                dct_attributes[attributes_name] = value
+        if node.attributes:
+            for key, value in node.attributes.items():
+                attributes_name = dct_key_keep.get(key)
+                if attributes_name:
+                    dct_attributes[attributes_name] = value
         # TODO validate dct_attributes has all needed key with dct_key_keep (except button_type)
         if "button_type" in dct_attributes.keys():
             button_type_value = dct_attributes.get("button_type")
@@ -900,7 +911,15 @@ class ExtractorView:
                 if child.nodeType is Node.TEXT_NODE:
                     data = child.data.strip()
                     if data:
-                        _logger.warning(f"Not supported : {data}.")
+                        self._extract_child_xml(
+                            child,
+                            lst_view_item_id,
+                            section_type,
+                            parent=view_item_id,
+                            sequence=child_sequence,
+                        )
+                        child_sequence += 1
+                        # _logger.warning(f"Not supported : {data}.")
                 elif child.nodeType is Node.ELEMENT_NODE:
                     self._extract_child_xml(
                         child,

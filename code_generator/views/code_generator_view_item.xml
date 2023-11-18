@@ -49,6 +49,9 @@
                         <field name="icon" />
                     </group>
                     <group>
+                        <field name="inner_text" />
+                    </group>
+                    <group>
                         <field name="is_help" />
                     </group>
                     <group>
