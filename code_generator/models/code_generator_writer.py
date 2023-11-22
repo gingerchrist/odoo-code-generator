@@ -3267,10 +3267,7 @@ _logger = logging.getLogger(__name__)"""
             # TODO éviter d'écraser une valeur pour le multi héritage
             for field_inherit in lst_field_inherit:
                 for attr_name in lst_attribute_check_diff:
-                    try:
-                        actual_value = getattr(f2export, attr_name)
-                    except Exception as e:
-                        print(e)
+                    actual_value = getattr(f2export, attr_name)
                     inherit_value = getattr(field_inherit, attr_name)
                     if actual_value != inherit_value:
                         dct_field_attr_diff[attr_name].append(inherit_value)
