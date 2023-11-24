@@ -1543,6 +1543,11 @@ class CodeGeneratorWriter(models.Model):
                         ast_attr.get("context")
                     )
 
+                if "readonly" in ast_attr.keys():
+                    dct_field_value["readonly"] = bool(
+                        ast_attr.get("readonly")
+                    )
+
                 compute = ast_attr.get("compute") if ast_attr else None
                 if compute:
                     if field_id.store:
