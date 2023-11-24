@@ -362,11 +362,13 @@ class ExtractorModuleFile:
             "right",
             "left",
             "value",
+            "values",
             "exc",
             "ctx",
             "func",
             "args",
             "elts",
+            "keywords",
         ]
         for attr in lst_attr:
             if not hasattr(item, attr):
