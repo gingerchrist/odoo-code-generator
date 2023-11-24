@@ -113,7 +113,7 @@ class ExtractorModuleFile:
             )
         else:
             result = None
-            _logger.error(
+            _logger.warning(
                 f"Cannot support keyword of variable {var_name} type"
                 f" {ast_obj_type} in filename {self.py_filename}."
             )
