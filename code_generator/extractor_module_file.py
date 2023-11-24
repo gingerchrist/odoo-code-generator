@@ -77,6 +77,7 @@ class ExtractorModuleFile:
 
     def _fill_search_field(self, ast_obj, var_name=""):
         ast_obj_type = type(ast_obj)
+        result = None
         if ast_obj_type is ast.Str:
             result = ast_obj.s
         elif ast_obj_type is ast.Lambda:
@@ -85,6 +86,16 @@ class ExtractorModuleFile:
             result = ast_obj.value
         elif ast_obj_type is ast.Num:
             result = ast_obj.n
+        elif ast_obj_type is ast.UnaryOp:
+            if type(ast_obj.op) is ast.USub:
+                # value is negative
+                result = ast_obj.operand.n * -1
+            else:
+                _logger.warning(
+                    f"Cannot support keyword of variable {var_name} type"
+                    f" {ast_obj_type} operator {type(ast_obj.op)} in filename"
+                    f" {self.py_filename}."
+                )
         elif ast_obj_type is ast.Name:
             result = ast_obj.id
         elif ast_obj_type is ast.Attribute:
@@ -112,7 +123,6 @@ class ExtractorModuleFile:
                 [self._fill_search_field(a, var_name) for a in ast_obj.elts]
             )
         else:
-            result = None
             _logger.warning(
                 f"Cannot support keyword of variable {var_name} type"
                 f" {ast_obj_type} in filename {self.py_filename}."
