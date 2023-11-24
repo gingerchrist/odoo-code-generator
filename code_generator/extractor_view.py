@@ -673,6 +673,46 @@ class ExtractorView:
             if "class" in dct_view_attr.keys():
                 value["view_attr_class"] = dct_view_attr.get("class")
                 lst_view_attr_copy.remove("class")
+            if "decoration-danger" in dct_view_attr.keys():
+                value["view_attr_decoration_danger"] = dct_view_attr.get(
+                    "decoration-danger"
+                )
+                lst_view_attr_copy.remove("decoration-danger")
+            if "decoration-success" in dct_view_attr.keys():
+                value["view_attr_decoration_success"] = dct_view_attr.get(
+                    "decoration-success"
+                )
+                lst_view_attr_copy.remove("decoration-success")
+            if "decoration-primary" in dct_view_attr.keys():
+                value["view_attr_decoration_primary"] = dct_view_attr.get(
+                    "decoration-primary"
+                )
+                lst_view_attr_copy.remove("decoration-primary")
+            if "decoration-bf" in dct_view_attr.keys():
+                value["view_attr_decoration_bf"] = dct_view_attr.get(
+                    "decoration-bf"
+                )
+                lst_view_attr_copy.remove("decoration-bf")
+            if "decoration-it" in dct_view_attr.keys():
+                value["view_attr_decoration_it"] = dct_view_attr.get(
+                    "decoration-it"
+                )
+                lst_view_attr_copy.remove("decoration-it")
+            if "decoration-view_attr_decoration_info" in dct_view_attr.keys():
+                value[
+                    "view_attr_decoration_view_attr_decoration_info"
+                ] = dct_view_attr.get("decoration-view_attr_decoration_info")
+                lst_view_attr_copy.remove("decoration-info")
+            if "decoration-warning" in dct_view_attr.keys():
+                value["view_attr_decoration_warning"] = dct_view_attr.get(
+                    "decoration-warning"
+                )
+                lst_view_attr_copy.remove("decoration-warning")
+            if "decoration-muted" in dct_view_attr.keys():
+                value["view_attr_decoration_muted"] = dct_view_attr.get(
+                    "decoration-muted"
+                )
+                lst_view_attr_copy.remove("decoration-muted")
             if "default_group_by" in dct_view_attr.keys():
                 # TODO support it in parameter of timeline view
                 # Ignore it, from timeline

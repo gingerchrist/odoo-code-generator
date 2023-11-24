@@ -35,6 +35,32 @@ class CodeGeneratorView(models.Model):
 
     view_attr_class = fields.Char(string="Class attribute")
 
+    view_attr_decoration_danger = fields.Char(
+        string="Decoration-danger attribute"
+    )
+
+    view_attr_decoration_success = fields.Char(
+        string="Decoration-success attribute"
+    )
+
+    view_attr_decoration_primary = fields.Char(
+        string="Decoration-primary attribute"
+    )
+
+    view_attr_decoration_bf = fields.Char(string="Decoration-bf attribute")
+
+    view_attr_decoration_it = fields.Char(string="Decoration-it attribute")
+
+    view_attr_decoration_info = fields.Char(string="Decoration-info attribute")
+
+    view_attr_decoration_warning = fields.Char(
+        string="Decoration-warning attribute"
+    )
+
+    view_attr_decoration_muted = fields.Char(
+        string="Decoration-muted attribute"
+    )
+
     view_attr_string = fields.Char(string="String attribute")
 
     view_item_ids = fields.Many2many(

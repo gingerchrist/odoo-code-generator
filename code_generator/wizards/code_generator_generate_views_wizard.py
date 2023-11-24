@@ -2415,6 +2415,46 @@ pass''',
         if code_generator_view_id.view_attr_class:
             dct_attr_view["class"] = code_generator_view_id.view_attr_class
 
+        if code_generator_view_id.view_attr_decoration_danger:
+            dct_attr_view[
+                "decoration-danger"
+            ] = code_generator_view_id.view_attr_decoration_danger
+
+        if code_generator_view_id.view_attr_decoration_success:
+            dct_attr_view[
+                "decoration-success"
+            ] = code_generator_view_id.view_attr_decoration_success
+
+        if code_generator_view_id.view_attr_decoration_primary:
+            dct_attr_view[
+                "decoration-primary"
+            ] = code_generator_view_id.view_attr_decoration_primary
+
+        if code_generator_view_id.view_attr_decoration_bf:
+            dct_attr_view[
+                "decoration-bf"
+            ] = code_generator_view_id.view_attr_decoration_bf
+
+        if code_generator_view_id.view_attr_decoration_it:
+            dct_attr_view[
+                "decoration-it"
+            ] = code_generator_view_id.view_attr_decoration_it
+
+        if code_generator_view_id.view_attr_decoration_info:
+            dct_attr_view[
+                "decoration-info"
+            ] = code_generator_view_id.view_attr_decoration_info
+
+        if code_generator_view_id.view_attr_decoration_warning:
+            dct_attr_view[
+                "decoration-warning"
+            ] = code_generator_view_id.view_attr_decoration_warning
+
+        if code_generator_view_id.view_attr_decoration_muted:
+            dct_attr_view[
+                "decoration-muted"
+            ] = code_generator_view_id.view_attr_decoration_muted
+
         dct_attr_view = dict(
             sorted(dct_attr_view.items(), key=lambda kv: kv[0])
         )

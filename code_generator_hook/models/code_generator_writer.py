@@ -219,6 +219,46 @@ class CodeGeneratorWriter(models.Model):
                 cw.emit(f'"view_attr_string": "{view_id.view_attr_string}",')
             if view_id.view_attr_class:
                 cw.emit(f'"view_attr_class": "{view_id.view_attr_class}",')
+            if view_id.view_attr_decoration_danger:
+                cw.emit(
+                    '"view_attr_decoration_danger":'
+                    f' "{view_id.view_attr_decoration_danger}",'
+                )
+            if view_id.view_attr_decoration_success:
+                cw.emit(
+                    '"view_attr_decoration_success":'
+                    f' "{view_id.view_attr_decoration_success}",'
+                )
+            if view_id.view_attr_decoration_primary:
+                cw.emit(
+                    '"view_attr_decoration_primary":'
+                    f' "{view_id.view_attr_decoration_primary}",'
+                )
+            if view_id.view_attr_decoration_bf:
+                cw.emit(
+                    '"view_attr_decoration_bf":'
+                    f' "{view_id.view_attr_decoration_bf}",'
+                )
+            if view_id.view_attr_decoration_it:
+                cw.emit(
+                    '"view_attr_decoration_it":'
+                    f' "{view_id.view_attr_decoration_it}",'
+                )
+            if view_id.view_attr_decoration_info:
+                cw.emit(
+                    '"view_attr_decoration_info":'
+                    f' "{view_id.view_attr_decoration_info}",'
+                )
+            if view_id.view_attr_decoration_warning:
+                cw.emit(
+                    '"view_attr_decoration_warning":'
+                    f' "{view_id.view_attr_decoration_warning}",'
+                )
+            if view_id.view_attr_decoration_muted:
+                cw.emit(
+                    '"view_attr_decoration_muted":'
+                    f' "{view_id.view_attr_decoration_muted}",'
+                )
             cw.emit(f'"m2o_model": {view_item.var_model_name}.id,')
             cw.emit('"view_item_ids": [(6, 0, lst_item_view)],')
             if view_id.has_body_sheet:
