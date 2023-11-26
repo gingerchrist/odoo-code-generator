@@ -1548,6 +1548,14 @@ class CodeGeneratorWriter(models.Model):
                         ast_attr.get("readonly")
                     )
 
+                if "index" in ast_attr.keys():
+                    dct_field_value["index"] = int(ast_attr.get("index"))
+
+                if "ondelete" in ast_attr.keys():
+                    dct_field_value["on_delete"] = str(
+                        ast_attr.get("ondelete")
+                    )
+
                 compute = ast_attr.get("compute") if ast_attr else None
                 if compute:
                     if field_id.store:
