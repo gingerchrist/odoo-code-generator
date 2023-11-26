@@ -2494,6 +2494,9 @@ _logger = logging.getLogger(__name__)"""
             rec_name = self._get_rec_name_inherit_model(model)
             if rec_name:
                 cw.emit(f"_rec_name = '{rec_name}'")
+            if model.order:
+                new_order = model.order.replace("'", "\\'")
+                cw.emit(f"_order = '{new_order}'")
 
             # TODO _order, _local_fields, _period_number, _inherits, _log_access, _auto, _parent_store
             # TODO _parent_name
@@ -2940,7 +2943,14 @@ _logger = logging.getLogger(__name__)"""
                 elif domain_info and domain_info != "[]":
                     dct_field_attribute["domain"] = domain_info
                 if f2export.force_domain:
-                    dct_field_attribute["domain"] = f2export.force_domain
+                    try:
+                        eval(f2export.force_domain)
+                        dct_field_attribute[
+                            "domain_raw"
+                        ] = f2export.force_domain
+                    except Exception as e:
+                        # Cannot transform it in string
+                        dct_field_attribute["domain"] = f2export.force_domain
 
                 if (
                     f2export.ttype == "many2one"
@@ -3133,19 +3143,24 @@ _logger = logging.getLogger(__name__)"""
             if lst_attribute_to_filter and key not in lst_attribute_to_filter:
                 continue
             if type(value) is str:
-                # TODO find another solution than removing \n, this cause error with cw.CodeWriter
-                copy_value = value.replace("'", "\\'")
-                value = value.replace("\n", " ").replace("'", "\\'")
-                if key == "comodel_name":
-                    lst_first_field_attribute.append(f"{key}='{value}'")
-                elif key == "ondelete":
-                    lst_last_field_attribute.append(f"{key}='{value}'")
+                if key == "domain_raw":
+                    lst_last_field_attribute.append(f"domain={value}")
                 else:
-                    if "\n" in copy_value:
-                        has_endline = True
-                        lst_field_attribute.append(f"{key}='''{copy_value}'''")
+                    # TODO find another solution than removing \n, this cause error with cw.CodeWriter
+                    copy_value = value.replace("'", "\\'")
+                    value = value.replace("\n", " ").replace("'", "\\'")
+                    if key == "comodel_name":
+                        lst_first_field_attribute.append(f"{key}='{value}'")
+                    elif key == "ondelete":
+                        lst_last_field_attribute.append(f"{key}='{value}'")
                     else:
-                        lst_field_attribute.append(f"{key}='{copy_value}'")
+                        if "\n" in copy_value:
+                            has_endline = True
+                            lst_field_attribute.append(
+                                f"{key}='''{copy_value}'''"
+                            )
+                        else:
+                            lst_field_attribute.append(f"{key}='{copy_value}'")
             elif type(value) is list or type(value) is tuple:
                 # TODO find another solution than removing \n, this cause error with cw.CodeWriter
                 if key == "default" and value[0] == "noquote":

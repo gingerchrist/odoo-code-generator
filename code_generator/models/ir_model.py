@@ -190,6 +190,13 @@ class IrModel(models.Model):
         help="Server Constrains attach to this model",
     )
 
+    order = fields.Char(
+        help=(
+            "Change order to show the data from the model, like orderby in"
+            " SQL."
+        ),
+    )
+
     rec_name = fields.Char(
         default="name",
         help="Will be the field name to use when show the generic name.",

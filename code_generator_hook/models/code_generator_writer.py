@@ -983,13 +983,14 @@ class CodeGeneratorWriter(models.Model):
                                         model_id.model
                                     ] = dct_field_data_one2many
 
-                                self.write_model(
-                                    cw,
-                                    model_id,
-                                    application_name,
-                                    module,
-                                    dct_field_data,
-                                )
+                                if model_id:
+                                    self.write_model(
+                                        cw,
+                                        model_id,
+                                        application_name,
+                                        module,
+                                        dct_field_data,
+                                    )
                                 if i >= len_model - 1 and dct_model_one2many:
                                     cw.emit()
                                     cw.emit(
@@ -1270,11 +1271,12 @@ class CodeGeneratorWriter(models.Model):
         # Prepare model data
         dct_model_data = {}
         if (
-            model_id
-            and model_id.description
+            model_id.description
             # and model_id.description != model_id.name
         ):
             dct_model_data["description"] = model_id.description
+        if model_id.order:
+            dct_model_data["order"] = model_id.order
         if application_name.lower() == "demo":
             dct_model_data["menu_name_keep_application"] = True
         if model_id.enable_activity or field_id_track:
