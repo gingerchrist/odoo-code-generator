@@ -122,6 +122,9 @@ class CodeGeneratorWriter(models.Model):
                     if view_item_id.class_attr:
                         cw.emit(f'"class_attr": "{view_item_id.class_attr}",')
 
+                    if view_item_id.attrs:
+                        cw.emit(f'"attrs": "{view_item_id.attrs}",')
+
                     if view_item_id.item_type == "button":
                         cw.emit(
                             f'"action_name": "{view_item_id.action_name}",'
@@ -146,9 +149,9 @@ class CodeGeneratorWriter(models.Model):
                             cw.emit(f'"password": {view_item_id.password},')
                     elif view_item_id.item_type == "#text":
                         cw.emit(f'"inner_text": "{view_item_id.inner_text}",')
-                    elif view_item_id.item_type in ("group", "div"):
-                        if view_item_id.attrs:
-                            cw.emit(f'"attrs": "{view_item_id.attrs}",')
+                    # elif view_item_id.item_type in ("group", "div"):
+                    #     if view_item_id.attrs:
+                    #         cw.emit(f'"attrs": "{view_item_id.attrs}",')
                     elif view_item_id.item_type == "xpath":
                         if not view_item_id.expr or not view_item_id.position:
                             _logger.error(

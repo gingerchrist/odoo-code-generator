@@ -1947,16 +1947,26 @@ class CodeGeneratorGenerateViewsWizard(models.TransientModel):
         return view_value
 
     def _generate_xml_button(self, item, model_id, lst_child_update=None):
-        button_attributes = {
+        button_attributes_begin = {
             "name": item.action_name,
-            "type": "object",
         }
+        button_attributes_middle = {}
+        button_attributes_end = {}
         if item.label:
-            button_attributes["string"] = item.label
+            button_attributes_begin["string"] = item.label
+        # TODO can have others type
+        button_attributes_begin["type"] = "object"
         if item.button_type:
-            button_attributes["class"] = item.button_type
+            button_attributes_begin["class"] = item.button_type
         if item.icon:
-            button_attributes["icon"] = item.icon
+            button_attributes_middle["icon"] = item.icon
+        if item.domain:
+            button_attributes_middle["domain"] = item.domain
+
+        if item.context:
+            button_attributes_end["context"] = item.context
+        if item.attrs:
+            button_attributes_end["attrs"] = item.attrs
 
         # Create method
         items = self.env["code.generator.model.code"].search(
@@ -1980,9 +1990,15 @@ pass''',
                 "is_wip": True,
             }
             self.env["code.generator.model.code"].create(value)
-        button_attributes = dict(
-            sorted(button_attributes.items(), key=lambda kv: kv[0])
+        # Force sequence. name/string/type ... in order ... context/attrs
+        button_attributes = {}
+        button_attributes.update(button_attributes_begin)
+        button_attributes.update(
+            dict(
+                sorted(button_attributes_middle.items(), key=lambda kv: kv[0])
+            )
         )
+        button_attributes.update(button_attributes_end)
         if lst_child_update:
             return E.button(button_attributes, *lst_child_update)
 

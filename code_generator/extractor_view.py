@@ -492,6 +492,7 @@ class ExtractorView:
                             lst_view_item_id,
                             "header",
                             sequence=no_sequence,
+                            debug_xmlid=view_id.xml_id,
                         )
 
             # Search footer
@@ -513,6 +514,7 @@ class ExtractorView:
                             lst_view_item_id,
                             "footer",
                             sequence=no_sequence,
+                            debug_xmlid=view_id.xml_id,
                         )
 
             # Search title
@@ -647,6 +649,7 @@ class ExtractorView:
                         "body",
                         lst_node=lst_node,
                         sequence=sequence,
+                        debug_xmlid=view_id.xml_id,
                     )
                     if status:
                         lst_node.append(body_xml)
@@ -762,6 +765,7 @@ class ExtractorView:
         lst_node=None,
         parent=None,
         sequence=1,
+        debug_xmlid="",
     ):
         """
 
@@ -822,6 +826,12 @@ class ExtractorView:
                     dct_attributes["class_attr"] = value
                 elif key == "string":
                     dct_attributes["label"] = value
+                # else:
+                #     _logger.warning(
+                #         f"Unknown node '{node.nodeName}' attribute '{key}'"
+                #         f" with value '{value}'. Already got attributes"
+                #         f" {dct_attributes} from xml_id {debug_xmlid}."
+                #     )
 
         if parent:
             dct_attributes["parent_id"] = parent.id
@@ -957,6 +967,7 @@ class ExtractorView:
                             section_type,
                             parent=view_item_id,
                             sequence=child_sequence,
+                            debug_xmlid=debug_xmlid,
                         )
                         child_sequence += 1
                         # _logger.warning(f"Not supported : {data}.")
@@ -967,5 +978,6 @@ class ExtractorView:
                         section_type,
                         parent=view_item_id,
                         sequence=child_sequence,
+                        debug_xmlid=debug_xmlid,
                     )
                     child_sequence += 1
