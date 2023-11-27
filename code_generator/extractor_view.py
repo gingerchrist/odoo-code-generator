@@ -826,6 +826,24 @@ class ExtractorView:
                     dct_attributes["class_attr"] = value
                 elif key == "string":
                     dct_attributes["label"] = value
+                elif key == "tabindex":
+                    dct_attributes["tabindex"] = value
+                elif key == "options":
+                    dct_attributes["options"] = value
+                elif key == "filter_domain":
+                    dct_attributes["filter_domain"] = value
+                elif key == "nolabel":
+                    dct_attributes["nolabel"] = value
+                elif key == "clickable":
+                    dct_attributes["clickable"] = value
+                elif key == "invisible":
+                    dct_attributes["invisible"] = value
+                elif key == "expand":
+                    dct_attributes["expand"] = value
+                elif key == "groups":
+                    dct_attributes["groups"] = value
+                elif key == "help":
+                    dct_attributes["help"] = value
                 # else:
                 #     _logger.warning(
                 #         f"Unknown node '{node.nodeName}' attribute '{key}'"

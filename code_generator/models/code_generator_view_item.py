@@ -163,6 +163,26 @@ class CodeGeneratorViewItem(models.Model):
 
     t_name = fields.Char(help="t_name attribute")
 
+    tabindex = fields.Char(help="Tab index")
+
+    invisible = fields.Char(help="if the item is invisible")
+
+    groups = fields.Char(help="Limit access to this item by group.")
+
+    options = fields.Char(
+        help="More option for this item, usually manage by Javascript."
+    )
+
+    filter_domain = fields.Char(help="Like domain for field.")
+
+    nolabel = fields.Char(help="Feature for field to remove label.")
+
+    clickable = fields.Char()
+
+    expand = fields.Char()
+
+    help = fields.Char(help="Show help to user about this item.")
+
     title = fields.Char(help="title attribute")
 
     type = fields.Selection(

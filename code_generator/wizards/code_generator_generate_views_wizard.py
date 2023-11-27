@@ -1947,26 +1947,27 @@ class CodeGeneratorGenerateViewsWizard(models.TransientModel):
         return view_value
 
     def _generate_xml_button(self, item, model_id, lst_child_update=None):
-        button_attributes_begin = {
+        button_attributes = {
             "name": item.action_name,
         }
-        button_attributes_middle = {}
-        button_attributes_end = {}
         if item.label:
-            button_attributes_begin["string"] = item.label
+            button_attributes["string"] = item.label
         # TODO can have others type
-        button_attributes_begin["type"] = "object"
+        button_attributes["type"] = "object"
         if item.button_type:
-            button_attributes_begin["class"] = item.button_type
+            button_attributes["class"] = item.button_type
         if item.icon:
-            button_attributes_middle["icon"] = item.icon
+            button_attributes["icon"] = item.icon
         if item.domain:
-            button_attributes_middle["domain"] = item.domain
-
+            button_attributes["domain"] = item.domain
+        if item.tabindex:
+            button_attributes["tabindex"] = item.tabindex
         if item.context:
-            button_attributes_end["context"] = item.context
+            button_attributes["context"] = item.context
         if item.attrs:
-            button_attributes_end["attrs"] = item.attrs
+            button_attributes["attrs"] = item.attrs
+        if item.groups:
+            button_attributes["groups"] = item.groups
 
         # Create method
         items = self.env["code.generator.model.code"].search(
@@ -1990,15 +1991,7 @@ pass''',
                 "is_wip": True,
             }
             self.env["code.generator.model.code"].create(value)
-        # Force sequence. name/string/type ... in order ... context/attrs
-        button_attributes = {}
-        button_attributes.update(button_attributes_begin)
-        button_attributes.update(
-            dict(
-                sorted(button_attributes_middle.items(), key=lambda kv: kv[0])
-            )
-        )
-        button_attributes.update(button_attributes_end)
+        button_attributes = self._order_attributes_item(button_attributes)
         if lst_child_update:
             return E.button(button_attributes, *lst_child_update)
 
@@ -2034,6 +2027,7 @@ pass''',
             if item.name:
                 dct_item["name"] = item.name
             elif item.action_name:
+                # TODO this is maybe the bug where name is a number
                 dct_item["name"] = item.action_name
 
             if item.t_name:
@@ -2060,16 +2054,35 @@ pass''',
                 dct_item["context"] = item.context
             if item.class_attr:
                 dct_item["class"] = item.class_attr
+            if item.invisible:
+                dct_item["invisible"] = item.invisible
+            if item.groups:
+                dct_item["groups"] = item.groups
+            if item.options:
+                dct_item["options"] = item.options
+            if item.filter_domain:
+                dct_item["filter_domain"] = item.filter_domain
+            if item.nolabel:
+                dct_item["nolabel"] = item.nolabel
+            if item.clickable:
+                dct_item["clickable"] = item.clickable
+            if item.help:
+                dct_item["help"] = item.help
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            if item.expand:
+                # TODO change 1 to True and 0 to False
+                dct_item["expand"] = item.expand
 
         if item.item_type == "field":
             if item.placeholder:
                 dct_item["placeholder"] = item.placeholder
             if item.password:
                 dct_item["password"] = "True"
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.field(dct_item)
         elif item.item_type == "filter":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.filter(dct_item)
         elif item.item_type == "button":
             return self._generate_xml_button(
@@ -2094,29 +2107,29 @@ pass''',
                 elif item.background_type.startswith("bg-danger"):
                     lst_html_child.append(E.h3({}, "Danger:"))
             lst_html_child.append(item.label)
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.div(dct_item, *lst_html_child)
         elif item.item_type == "group":
             if item.label:
                 dct_item["string"] = item.label
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.group(dct_item, *lst_child_update)
         elif item.item_type == "li":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.li(dct_item, *lst_child_update)
         elif item.item_type == "ul":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.ul(dct_item, *lst_child_update)
         elif item.item_type == "i":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.i(dct_item, *lst_child_update)
         elif item.item_type == "t":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.t(dct_item, *lst_child_update)
         elif item.item_type == "strong":
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.strong(dct_item, *lst_child_update)
         elif item.item_type == "xpath":
             if not item.expr:
@@ -2130,58 +2143,81 @@ pass''',
             else:
                 dct_item["expr"] = item.expr
                 dct_item["position"] = item.position
-                dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+                dct_item = self._order_attributes_item(dct_item)
                 item_xml = E.xpath(dct_item, *lst_child_update)
         elif item.item_type == "div":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.div(dct_item, *lst_child_update)
         elif item.item_type == "h1":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.h1(dct_item, *lst_child_update)
         elif item.item_type == "h2":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.h2(dct_item, *lst_child_update)
         elif item.item_type == "h3":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.h3(dct_item, *lst_child_update)
         elif item.item_type == "h4":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.h4(dct_item, *lst_child_update)
         elif item.item_type == "h5":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.h5(dct_item, *lst_child_update)
         elif item.item_type == "page":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.page(dct_item, *lst_child_update)
         elif item.item_type == "notebook":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.notebook(dct_item, *lst_child_update)
         elif item.item_type == "templates":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
-            dct_item = dict(sorted(dct_item.items(), key=lambda kv: kv[0]))
+            dct_item = self._order_attributes_item(dct_item)
             item_xml = E.templates(dct_item, *lst_child_update)
         elif item.item_type == "#text":
             item_xml = item.inner_text
         else:
             _logger.warning(f"View item '{item.item_type}' is not supported.")
         return item_xml
+
+    def _order_attributes_item(self, dct_item):
+        # Force sequence. name/string/type/class ... in order ... context/attrs
+        dct_item_copy = dct_item.copy()
+        dct_item_begin = {}
+        dct_item_end = {}
+        lst_key_begin = ["name", "string", "type", "class", "widget"]
+        lst_key_end = ["options", "context", "groups", "attrs", "help"]
+        for key in lst_key_begin:
+            if key in dct_item_copy.keys():
+                dct_item_begin[key] = dct_item_copy[key]
+                del dct_item_copy[key]
+        for key in lst_key_end:
+            if key in dct_item_copy.keys():
+                dct_item_end[key] = dct_item_copy[key]
+                del dct_item_copy[key]
+        dct_item_middle = dict(
+            sorted(dct_item_copy.items(), key=lambda kv: kv[0])
+        )
+        dct_item_result = dct_item_begin
+        dct_item_result.update(dct_item_middle)
+        dct_item_result.update(dct_item_end)
+        return dct_item_result
 
     def _generate_xml_group_div(self, item, lst_xml, dct_replace, model_id):
         """

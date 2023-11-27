@@ -125,6 +125,38 @@ class CodeGeneratorWriter(models.Model):
                     if view_item_id.attrs:
                         cw.emit(f'"attrs": "{view_item_id.attrs}",')
 
+                    if view_item_id.tabindex:
+                        cw.emit(f'"tabindex": "{view_item_id.tabindex}",')
+
+                    if view_item_id.invisible:
+                        cw.emit(f'"invisible": "{view_item_id.invisible}",')
+
+                    if view_item_id.groups:
+                        cw.emit(f'"groups": "{view_item_id.groups}",')
+
+                    if view_item_id.options:
+                        options_formatted = view_item_id.options.replace(
+                            "'", "\\'"
+                        )
+                        cw.emit(f"\"options\": '{options_formatted}',")
+
+                    if view_item_id.filter_domain:
+                        cw.emit(
+                            f'"filter_domain": "{view_item_id.filter_domain}",'
+                        )
+
+                    if view_item_id.nolabel:
+                        cw.emit(f'"nolabel": "{view_item_id.nolabel}",')
+
+                    if view_item_id.clickable:
+                        cw.emit(f'"clickable": "{view_item_id.clickable}",')
+
+                    if view_item_id.expand:
+                        cw.emit(f'"expand": "{view_item_id.expand}",')
+
+                    if view_item_id.help:
+                        cw.emit(f'"help": "{view_item_id.help}",')
+
                     if view_item_id.item_type == "button":
                         cw.emit(
                             f'"action_name": "{view_item_id.action_name}",'
