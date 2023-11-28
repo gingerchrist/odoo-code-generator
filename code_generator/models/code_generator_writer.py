@@ -2517,13 +2517,39 @@ _logger = logging.getLogger(__name__)"""
                         if line:
                             cw.emit(line)
                 return_v = "" if not code.returns else f" -> {code.returns}"
-                cw.emit(f"def {code.name}({code.param}){return_v}:")
+                # TODO Bug from uca, into ucb hook, so patch it
+                param_formatted = code.param.replace("='''", '="\'"')
+                cw.emit(f"def {code.name}({param_formatted}){return_v}:")
 
-                code_traited = code.code.replace("\\\n", key_special_endline)
-                code_traited = code_traited.replace("\\'", "\\\\'")
-                code_traited = code_traited.replace("\b", "\\b")
+                code_formatted = code.code.replace("\\\n", key_special_endline)
+                code_formatted = code_formatted.replace("\\'", "\\\\'")
+                code_formatted = code_formatted.replace("\b", "\\b")
+                # TODO Bug from uca, into ucb hook, so patch it
+                code_formatted = code_formatted.replace("'\\\"'", "'\\\\\"'")
+                code_formatted = code_formatted.replace("\"''", "\"\\''")
+                code_formatted = code_formatted.replace('}"\'"', '}\\"\'"')
+                code_formatted = code_formatted.replace(
+                    "osascript -e ", "osascript -e \\"
+                )
+                code_formatted = code_formatted.replace(
+                    '\\"{cmd}{str_keep_open}\\"',
+                    '\\\\"{cmd}{str_keep_open}\\\\"',
+                )
+                code_formatted = code_formatted.replace(
+                    'grep -nr "{s_value_error}"',
+                    'grep -nr \\\\"{s_value_error}"\\\\',
+                )
+                code_formatted = code_formatted.replace(
+                    'force replace " to "', 'force replace " to \\"'
+                )
+                code_formatted = code_formatted.replace(
+                    "{value_error}", "\\{value_error}"
+                )
+                code_formatted = code_formatted.replace(
+                    '\\"{s_value_error}\\"', '\\\\"{s_value_error}\\\\"'
+                )
                 with cw.indent():
-                    for code_line in code_traited.split("\n"):
+                    for code_line in code_formatted.split("\n"):
                         if key_special_endline in code_line:
                             code_line = code_line.replace(
                                 key_special_endline, "\\\\n"
