@@ -50,6 +50,7 @@ class ExtractorView:
                 value
             )
             self._parse_view_ids()
+            # TODO bad hack, separate menu manage with extract view
             if number_view == 0:
                 self._parse_menu()
                 self._parse_action_server()

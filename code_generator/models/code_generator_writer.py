@@ -2228,6 +2228,9 @@ _logger = logging.getLogger(__name__)"""
         for key, value in dct_replace.items():
             str_content = str_content.replace(key, value)
         str_content = self._change_xml_2_to_4_spaces(str_content)[:-1]
+        # Patch, because xml domain is better with <>
+        str_content = str_content.replace("'&gt;'", "'>'")
+        str_content = str_content.replace("'&lt;'", "'<'")
 
         wizards_path = self.code_generator_data.wizards_path
         views_path = self.code_generator_data.views_path
