@@ -23,3 +23,9 @@ class CodeGeneratorActWindow(models.Model):
     model_name = fields.Char(
         help="The associate model, if empty, no association."
     )
+
+    view_mode = fields.Char(help="The sequence of view mode.")
+
+    view_type = fields.Char(
+        help="The default view for this action window.", default="form"
+    )

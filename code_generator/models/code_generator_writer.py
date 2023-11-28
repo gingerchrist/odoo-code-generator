@@ -1909,6 +1909,7 @@ _logger = logging.getLogger(__name__)"""
         #
         for act_window in act_window_ids:
             # Use descriptive method when contain this attributes, not supported in simplify view
+            # TODO why support non complex view, its suppose to be the default view
             use_complex_view = bool(
                 act_window.groups_id
                 or act_window.help
@@ -1927,8 +1928,24 @@ _logger = logging.getLogger(__name__)"""
                     act_window, creating=True
                 )
 
+            cg_act_window_id = (
+                self.env["code.generator.act_window"]
+                .search([("id_name", "=", record_id)], limit=1)
+                .exists()
+            )
+
             has_menu = bool(
                 module.with_context({"ir.ui.menu.full_list": True}).o2m_menus
+            )
+            view_type = (
+                cg_act_window_id.view_type
+                if cg_act_window_id
+                else act_window.view_type
+            )
+            view_mode = (
+                cg_act_window_id.view_mode
+                if cg_act_window_id
+                else act_window.view_mode
             )
             # TODO if not complex, search if associate with a menu. If the menu is not generated, don't generate is act_window
             if use_complex_view:
@@ -1994,18 +2011,11 @@ _logger = logging.getLogger(__name__)"""
                         E.field({"name": "target"}, act_window.target)
                     )
 
-                if (
-                    act_window.view_mode != "tree,form"
-                    and act_window.view_mode != "form,tree"
-                ):
-                    lst_field.append(
-                        E.field({"name": "view_mode"}, act_window.view_mode)
-                    )
+                if view_mode != "tree,form" and view_mode != "form,tree":
+                    lst_field.append(E.field({"name": "view_mode"}, view_mode))
 
-                if act_window.view_type != "form":
-                    lst_field.append(
-                        E.field({"name": "view_type"}, act_window.view_type)
-                    )
+                if view_type != "form":
+                    lst_field.append(E.field({"name": "view_type"}, view_type))
 
                 if act_window.usage:
                     lst_field.append(
@@ -2097,11 +2107,11 @@ _logger = logging.getLogger(__name__)"""
                 if act_window.target != "current":
                     dct_act_window["target"] = act_window.target
 
-                if act_window.view_mode != "tree,form":
-                    dct_act_window["view_mode"] = act_window.view_mode
+                if view_mode != "tree,form":
+                    dct_act_window["view_mode"] = view_mode
 
-                if act_window.view_type != "form":
-                    dct_act_window["view_type"] = act_window.view_type
+                if view_type != "form":
+                    dct_act_window["view_type"] = view_type
 
                 if act_window.usage:
                     # TODO replace ref

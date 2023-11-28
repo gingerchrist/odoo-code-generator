@@ -7,16 +7,13 @@
             <form string="Titre">
                 <sheet>
                     <group>
-                        <field name="code_generator_id" />
-                    </group>
-                    <group>
-                        <field name="id_name" />
-                    </group>
-                    <group>
-                        <field name="model_name" />
-                    </group>
-                    <group>
-                        <field name="name" />
+                        <group>
+                            <field name="code_generator_id" />
+                            <field name="id_name" />
+                            <field name="model_name" />
+                            <field name="name" />
+                            <field name="view_mode" />
+                        </group>
                     </group>
                 </sheet>
             </form>

@@ -126,6 +126,24 @@ class ExtractorView:
                 }
                 if menu_id.action.res_model:
                     dct_act_value["model_name"] = menu_id.action.res_model
+                    ir_actions_windows = self.env[
+                        "ir.actions.act_window"
+                    ].search([("res_model", "=", menu_id.action.res_model)])
+                    if ir_actions_windows:
+                        # take first, but what to do with multiple action?
+                        if len(ir_actions_windows) > 1:
+                            _logger.warning(
+                                "Multiple action windows for model"
+                                f" '{menu_id.action.res_model}'"
+                            )
+                        ir_actions_windows_id = ir_actions_windows[0]
+                        dct_act_value[
+                            "view_type"
+                        ] = ir_actions_windows_id.view_type
+                        dct_act_value[
+                            "view_mode"
+                        ] = ir_actions_windows_id.view_mode
+                # TODO why create act_window and not extract value
                 menu_action = self.env["code.generator.act_window"].create(
                     dct_act_value
                 )

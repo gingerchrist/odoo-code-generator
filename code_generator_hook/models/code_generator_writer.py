@@ -438,6 +438,14 @@ class CodeGeneratorWriter(models.Model):
                                 cw.emit(
                                     f'"model_name": "{act_win_id.model_name}",'
                                 )
+                            if act_win_id.view_type:
+                                cw.emit(
+                                    f'"view_type": "{act_win_id.view_type}",'
+                                )
+                            if act_win_id.view_mode:
+                                cw.emit(
+                                    f'"view_mode": "{act_win_id.view_mode}",'
+                                )
                     cw.emit()
         cw.emit()
         if view_item.code_generator_id.code_generator_menus_id:
