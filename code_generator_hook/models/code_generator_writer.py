@@ -65,13 +65,13 @@ class CodeGeneratorWriter(models.Model):
     def _write_generated_template(self, module, model_model, cw):
         pass
 
-    def _write_sync_view_component(self, view_item_ids, cw, parent=None):
+    def _write_sync_view_component(
+        self, view_item_ids, cw, view_id, parent=None, sequence_level_parent=1
+    ):
         for view_item_id in view_item_ids:
-            # TODO view_item can be duplicated, use unique name
+            other_name = f"view_item_{view_item_id.section_type}_{view_item_id.item_type}_p{sequence_level_parent}"
             var_create_view_item = (
-                "view_item"
-                if not view_item_id.child_id
-                else f"view_item_{view_item_id.section_type}_{view_item_id.item_type}_{view_item_id.sequence}"
+                "view_item" if not view_item_id.child_id else other_name
             )
             with cw.block(
                 before=(
@@ -225,7 +225,11 @@ class CodeGeneratorWriter(models.Model):
 
             if view_item_id.child_id:
                 self._write_sync_view_component(
-                    view_item_id.child_id, cw, parent=var_create_view_item
+                    view_item_id.child_id,
+                    cw,
+                    view_id,
+                    parent=var_create_view_item,
+                    sequence_level_parent=sequence_level_parent + 1,
                 )
 
     def _write_block_template_views(
@@ -242,7 +246,7 @@ class CodeGeneratorWriter(models.Model):
                 and not field.parent_id
             )
 
-            self._write_sync_view_component(view_item_ids, cw)
+            self._write_sync_view_component(view_item_ids, cw, view_id)
 
         cw.emit('view_code_generator = env["code.generator.view"].create(')
         with cw.block(delim=("{", "}")):
