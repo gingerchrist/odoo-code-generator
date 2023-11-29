@@ -1956,6 +1956,8 @@ class CodeGeneratorGenerateViewsWizard(models.TransientModel):
         button_attributes["type"] = "object"
         if item.button_type:
             button_attributes["class"] = item.button_type
+        if item.binding_type:
+            button_attributes["type"] = item.binding_type
         if item.icon:
             button_attributes["icon"] = item.icon
         if item.domain:
@@ -1979,7 +1981,12 @@ class CodeGeneratorGenerateViewsWizard(models.TransientModel):
         )
         # TODO get this list from module base
         lst_ignore_code = ["toggle_active"]
-        if not items and item.action_name not in lst_ignore_code:
+        if (
+            not items
+            and item.action_name not in lst_ignore_code
+            and item.binding_type == "object"
+            and not item.action_name.isdigit()
+        ):
             value = {
                 "code": '''"""TODO what to run"""
 pass''',

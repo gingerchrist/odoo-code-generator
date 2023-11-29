@@ -165,6 +165,11 @@ class CodeGeneratorWriter(models.Model):
                             cw.emit(
                                 f'"button_type": "{view_item_id.button_type}",'
                             )
+                        if view_item_id.binding_type:
+                            cw.emit(
+                                '"binding_type":'
+                                f' "{view_item_id.binding_type}",'
+                            )
                         if view_item_id.icon:
                             cw.emit(f'"icon": "{view_item_id.icon}",')
                     # elif view_item_id.item_type == "li":

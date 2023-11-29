@@ -53,6 +53,16 @@ class CodeGeneratorViewItem(models.Model):
         help="Choose item type to generate.",
     )
 
+    binding_type = fields.Selection(
+        selection=[
+            ("", ""),
+            ("object", "Object"),
+            ("action", "Action"),
+            ("server", "Server"),
+        ],
+        help="Button type, the binding method.",
+    )
+
     child_id = fields.One2many(
         comodel_name="code.generator.view.item",
         inverse_name="parent_id",

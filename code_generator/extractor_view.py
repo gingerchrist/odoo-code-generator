@@ -834,7 +834,15 @@ class ExtractorView:
                 elif key == "role":
                     dct_attributes["role"] = value
                 elif key == "name":
-                    dct_attributes["name"] = value
+                    # A name cannot be a number, this view is an action
+                    if value.isdigit():
+                        act_id = self.env["ir.actions.act_window"].browse(
+                            int(value)
+                        )
+                        dct_attributes["name"] = f"%({act_id.xml_id})d"
+                        dct_attributes["binding_type"] = act_id.binding_type
+                    else:
+                        dct_attributes["name"] = value
                 elif key == "widget":
                     dct_attributes["widget"] = value
                 elif key == "domain":
@@ -969,7 +977,16 @@ class ExtractorView:
             for key, value in node.attributes.items():
                 attributes_name = dct_key_keep.get(key)
                 if attributes_name:
-                    dct_attributes[attributes_name] = value
+                    if (
+                        attributes_name == "action_name"
+                        and value.isdigit()
+                        and "name" in dct_attributes.keys()
+                    ):
+                        dct_attributes[attributes_name] = dct_attributes.get(
+                            "name"
+                        )
+                    else:
+                        dct_attributes[attributes_name] = value
         # TODO validate dct_attributes has all needed key with dct_key_keep (except button_type)
         if "button_type" in dct_attributes.keys():
             button_type_value = dct_attributes.get("button_type")
