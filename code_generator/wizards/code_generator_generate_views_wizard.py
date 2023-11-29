@@ -2460,6 +2460,32 @@ pass''',
             else:
                 lst_item_form += lst_item_form_sheet
 
+        if (
+            code_generator_view_id.m2o_model.enable_activity
+            and view_type == "form"
+        ):
+            # TODO duplicate
+            xml_activity = E.div(
+                {"class": "oe_chatter"},
+                E.field(
+                    {
+                        # "groups": "base.group_user",
+                        # "help": "",
+                        "name": "message_follower_ids",
+                        "widget": "mail_followers",
+                    }
+                ),
+                E.field({"name": "activity_ids", "widget": "mail_activity"}),
+                E.field(
+                    {
+                        "name": "message_ids",
+                        "options": "{'post_refresh': 'recipients'}",
+                        "widget": "mail_thread",
+                    }
+                ),
+            )
+            lst_item_form.append(xml_activity)
+
         dct_attr_view = {}
         if code_generator_view_id.view_attr_string:
             dct_attr_view["string"] = code_generator_view_id.view_attr_string
