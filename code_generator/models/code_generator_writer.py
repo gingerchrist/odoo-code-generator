@@ -2516,58 +2516,35 @@ _logger = logging.getLogger(__name__)"""
 
             self._get_model_constrains(cw, model, module)
 
-            self._get_model_fields(cw, model, module)
+            f2exports = self._get_model_fields_f2export(model, module)
+
+            lst_method_before = []
+            # Detect method to move before field
+            for ir_model_field_id in f2exports:
+                if ir_model_field_id.default_lambda:
+                    for code_id in code_ids:
+                        if code_id.name == ir_model_field_id.default_lambda:
+                            lst_method_before.append(code_id)
+
+            lst_method_after = [
+                code_id
+                for code_id in code_ids
+                if code_id not in lst_method_before
+            ]
+
+            self._write_code(
+                cw, model, module, lst_method_before, key_special_endline
+            )
+
+            self._get_model_fields(cw, model, module, f2exports)
 
             # code_ids = self.env["code.generator.model.code"].search(
             #     [("m2o_module", "=", module.id)]
             # )
 
-            # Add function
-            for code in code_ids:
-                cw.emit()
-                if code.decorator:
-                    for line in code.decorator.split(";"):
-                        if line:
-                            cw.emit(line)
-                return_v = "" if not code.returns else f" -> {code.returns}"
-                # TODO Bug from uca, into ucb hook, so patch it
-                param_formatted = code.param.replace("='''", '="\'"')
-                cw.emit(f"def {code.name}({param_formatted}){return_v}:")
-
-                code_formatted = code.code.replace("\\\n", key_special_endline)
-                code_formatted = code_formatted.replace("\\'", "\\\\'")
-                code_formatted = code_formatted.replace("\b", "\\b")
-                # TODO Bug from uca, into ucb hook, so patch it
-                code_formatted = code_formatted.replace("'\\\"'", "'\\\\\"'")
-                code_formatted = code_formatted.replace("\"''", "\"\\''")
-                code_formatted = code_formatted.replace('}"\'"', '}\\"\'"')
-                code_formatted = code_formatted.replace(
-                    "osascript -e ", "osascript -e \\"
-                )
-                code_formatted = code_formatted.replace(
-                    '\\"{cmd}{str_keep_open}\\"',
-                    '\\\\"{cmd}{str_keep_open}\\\\"',
-                )
-                code_formatted = code_formatted.replace(
-                    'grep -nr "{s_value_error}"',
-                    'grep -nr \\\\"{s_value_error}"\\\\',
-                )
-                code_formatted = code_formatted.replace(
-                    'force replace " to "', 'force replace " to \\"'
-                )
-                code_formatted = code_formatted.replace(
-                    "{value_error}", "\\{value_error}"
-                )
-                code_formatted = code_formatted.replace(
-                    '\\"{s_value_error}\\"', '\\\\"{s_value_error}\\\\"'
-                )
-                with cw.indent():
-                    for code_line in code_formatted.split("\n"):
-                        if key_special_endline in code_line:
-                            code_line = code_line.replace(
-                                key_special_endline, "\\\\n"
-                            )
-                        cw.emit(code_line)
+            self._write_code(
+                cw, model, module, lst_method_after, key_special_endline
+            )
 
         if model.transient:
             pypath = self.code_generator_data.wizards_path
@@ -3219,7 +3196,7 @@ _logger = logging.getLogger(__name__)"""
 
         return lst_field_attribute, has_endline, compute, True
 
-    def _get_model_fields(self, cw, model, module):
+    def _get_model_fields_f2export(self, model, module):
         """
         Function to obtain the model fields
         :param model:
@@ -3240,8 +3217,6 @@ _logger = logging.getLogger(__name__)"""
             .sorted(key=lambda r: r.code_generator_sequence)
             .with_context(lang=None)
         )
-
-        lst_inherit_model = self._get_lst_inherit_model(model)
 
         if model.inherit_model_ids:
             is_whitelist = any(
@@ -3272,6 +3247,63 @@ _logger = logging.getLogger(__name__)"""
             #     f2exports = f2exports.filtered(
             #         lambda field: field.name not in list(set_unique_field)
             #     ).with_context(lang=None)
+        return f2exports
+
+    def _write_code(self, cw, model, module, code_ids, key_special_endline):
+        # Add function
+        for code in code_ids:
+            cw.emit()
+            if code.decorator:
+                for line in code.decorator.split(";"):
+                    if line:
+                        cw.emit(line)
+            return_v = "" if not code.returns else f" -> {code.returns}"
+            # TODO Bug from uca, into ucb hook, so patch it
+            param_formatted = code.param.replace("='''", '="\'"')
+            cw.emit(f"def {code.name}({param_formatted}){return_v}:")
+
+            code_formatted = code.code.replace("\\\n", key_special_endline)
+            code_formatted = code_formatted.replace("\\'", "\\\\'")
+            code_formatted = code_formatted.replace("\b", "\\b")
+            # TODO Bug from uca, into ucb hook, so patch it
+            code_formatted = code_formatted.replace("'\\\"'", "'\\\\\"'")
+            code_formatted = code_formatted.replace("\"''", "\"\\''")
+            code_formatted = code_formatted.replace('}"\'"', '}\\"\'"')
+            code_formatted = code_formatted.replace(
+                "osascript -e ", "osascript -e \\"
+            )
+            code_formatted = code_formatted.replace(
+                '\\"{cmd}{str_keep_open}\\"',
+                '\\\\"{cmd}{str_keep_open}\\\\"',
+            )
+            code_formatted = code_formatted.replace(
+                'grep -nr "{s_value_error}"',
+                'grep -nr \\\\"{s_value_error}"\\\\',
+            )
+            code_formatted = code_formatted.replace(
+                'force replace " to "', 'force replace " to \\"'
+            )
+            code_formatted = code_formatted.replace(
+                "{value_error}", "\\{value_error}"
+            )
+            code_formatted = code_formatted.replace(
+                '\\"{s_value_error}\\"', '\\\\"{s_value_error}\\\\"'
+            )
+            with cw.indent():
+                for code_line in code_formatted.split("\n"):
+                    if key_special_endline in code_line:
+                        code_line = code_line.replace(
+                            key_special_endline, "\\\\n"
+                        )
+                    cw.emit(code_line)
+
+    def _get_model_fields(self, cw, model, module, f2exports):
+        """
+        Function to obtain the model fields
+        :param model:
+        :return:
+        """
+        lst_inherit_model = self._get_lst_inherit_model(model)
 
         # Force field name first
         field_rec_name = model.get_rec_name()
