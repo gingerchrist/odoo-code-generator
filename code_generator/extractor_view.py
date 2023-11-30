@@ -187,8 +187,8 @@ class ExtractorView:
             mydoc = minidom.parseString(view_id.arch_base.encode())
 
             lst_view_item_id = []
-
             dct_view_attr = {}
+            lst_ignore_node = []
 
             # Search graph
             lst_graph_xml = mydoc.getElementsByTagName("graph")
@@ -464,26 +464,26 @@ class ExtractorView:
 
             # Search oe_chatter activity message_ids or message_follower_ids
             lst_div_xml = mydoc.getElementsByTagName("div")
-            if lst_div_xml:
-                for div_xml in lst_div_xml:
-                    if (
-                        "class",
-                        "oe_chatter",
-                    ) in div_xml.attributes.items():
-                        for child_div in div_xml.childNodes:
-                            if child_div.nodeType is Node.ELEMENT_NODE:
-                                lst_value = dict(
-                                    child_div.attributes.items()
-                                ).values()
-                                if (
-                                    "activity_ids" in lst_value
-                                    or "message_ids" in lst_value
-                                    or "message_follower_ids" in lst_value
-                                ):
-                                    # self.model_id.write(
-                                    #     {"enable_activity": True}
-                                    # )
-                                    self.model_id.enable_activity = True
+            for div_xml in lst_div_xml:
+                if (
+                    "class",
+                    "oe_chatter",
+                ) in div_xml.attributes.items():
+                    for i, child_div in enumerate(div_xml.childNodes):
+                        if child_div.nodeType is Node.ELEMENT_NODE:
+                            lst_value = dict(
+                                child_div.attributes.items()
+                            ).values()
+                            if (
+                                "activity_ids" in lst_value
+                                or "message_ids" in lst_value
+                                or "message_follower_ids" in lst_value
+                            ):
+                                # self.model_id.write(
+                                #     {"enable_activity": True}
+                                # )
+                                self.model_id.enable_activity = True
+                                lst_ignore_node.append(div_xml)
 
             # Sheet
             lst_sheet_xml = mydoc.getElementsByTagName("sheet")
@@ -540,7 +540,7 @@ class ExtractorView:
             no_sequence = 1
             nb_oe_title = 0
             div_title = None
-            for div_xml in mydoc.getElementsByTagName("div"):
+            for div_xml in lst_div_xml:
                 # Find oe_title class
                 # TODO what todo when multiple class? split by ,
                 for key, value in div_xml.attributes.items():
@@ -585,6 +585,7 @@ class ExtractorView:
                                     "code.generator.view.item"
                                 ].create(dct_attributes)
                                 lst_view_item_id.append(view_item_id.id)
+                                lst_ignore_node.append(div_xml)
                                 no_sequence += 1
 
             lst_body_xml = []
@@ -640,7 +641,8 @@ class ExtractorView:
                         #     lst_body_xml.append(child_form)
                         # TODO everything can be in body? check when add oe_chatter
                         # TODO why cumulate here when change value in lst_sheet_xml next lines
-                        lst_body_xml.append(child_form)
+                        if child_form not in lst_ignore_node:
+                            lst_body_xml.append(child_form)
 
             if lst_sheet_xml:
                 # TODO validate this, test with and without <sheet>
@@ -662,14 +664,17 @@ class ExtractorView:
                     if data:
                         _logger.warning(f"Not supported : {data}.")
                 elif body_xml.nodeType is Node.ELEMENT_NODE:
-                    status = self._extract_child_xml(
-                        body_xml,
-                        lst_view_item_id,
-                        "body",
-                        lst_node=lst_node,
-                        sequence=sequence,
-                        debug_xmlid=view_id.xml_id,
-                    )
+                    if body_xml not in lst_ignore_node:
+                        status = self._extract_child_xml(
+                            body_xml,
+                            lst_view_item_id,
+                            "body",
+                            lst_node=lst_node,
+                            sequence=sequence,
+                            debug_xmlid=view_id.xml_id,
+                        )
+                    else:
+                        status = False
                     if status:
                         lst_node.append(body_xml)
                     else:
