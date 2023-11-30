@@ -2756,6 +2756,10 @@ pass''',
         if self.disable_generate_menu:
             return
 
+        # TODO no menu is generated in case of module is not an application
+        #  and it creates new views, because cannot find views to attach it.
+        #  Need a configuration to attach a root if not create it.
+        #  Can have multiple menu
         # group_id = self.env['res.groups'].search([('name', '=', 'Code Generator / Manager')])
         # group_id = self.env['res.groups'].search([('name', '=', 'Internal User')])
         is_generic_menu = not model_created.m2o_module.code_generator_menus_id
