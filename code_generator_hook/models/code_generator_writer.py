@@ -958,11 +958,8 @@ class CodeGeneratorWriter(models.Model):
                                     continue
                                 lst_model_id.append(model_id)
 
-                            len_model = len(lst_model)
-                            i = -1
                             dct_model_one2many = {}
-                            for model_id in lst_model_id:
-                                i += 1
+                            for i, model_id in enumerate(lst_model_id):
                                 if module.enable_sync_template:
                                     view_file_sync = module.view_file_sync.get(
                                         model_id.model
@@ -1043,7 +1040,10 @@ class CodeGeneratorWriter(models.Model):
                                         module,
                                         dct_field_data,
                                     )
-                                if i >= len_model - 1 and dct_model_one2many:
+                                if (
+                                    i >= len(lst_model_id) - 1
+                                    and dct_model_one2many
+                                ):
                                     cw.emit()
                                     cw.emit(
                                         "# Added one2many field,"
