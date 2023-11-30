@@ -2675,20 +2675,6 @@ pass''',
 
         access_value = self.env["ir.model.access"].create(v)
 
-    @staticmethod
-    def _generate_menu_name(lst_unique_menu_name: set, name: str):
-        if name in lst_unique_menu_name:
-            new_name = ""
-            i = 1
-            while not new_name:
-                new_name = f"{name}_{i}"
-                i += 1
-                if new_name in lst_unique_menu_name:
-                    new_name = ""
-            name = new_name
-        lst_unique_menu_name.add(name)
-        return name
-
     def _create_ir_model_data(
         self, module, model, res_id, name, prefix_name="", suffix_name=""
     ):
