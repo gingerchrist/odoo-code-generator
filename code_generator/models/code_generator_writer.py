@@ -3508,19 +3508,17 @@ _logger = logging.getLogger(__name__)"""
         module.module_file_sync = {}
 
         if module.template_model_name or module.template_inherit_model_name:
-            i = -1
             lst_model = f"{module.template_model_name};{module.template_inherit_model_name}".strip(
                 ";"
             ).split(
                 ";"
             )
+            last_extractor_view = None
             for model in lst_model:
-                i += 1
                 model = model.strip()
                 if model:
-                    module.view_file_sync[model] = ExtractorView(
-                        module, model, i
-                    )
+                    last_extractor_view = ExtractorView(module, model)
+                    module.view_file_sync[model] = last_extractor_view
                     module.module_file_sync[model] = ExtractorModule(
                         module, model, module.view_file_sync[model]
                     )
@@ -3528,6 +3526,8 @@ _logger = logging.getLogger(__name__)"""
                     ExtractorController(
                         module, model, module.module_file_sync[model]
                     )
+            if last_extractor_view:
+                last_extractor_view.parse_menu()
 
         for model in module.o2m_models:
 

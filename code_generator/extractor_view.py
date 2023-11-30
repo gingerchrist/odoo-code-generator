@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 
 class ExtractorView:
-    def __init__(self, module, model_model, number_view):
+    def __init__(self, module, model_model):
         self._module = module
         self.env = module.env
         model_name = model_model.replace(".", "_")
@@ -50,10 +50,10 @@ class ExtractorView:
                 value
             )
             self._parse_view_ids()
-            # TODO bad hack, separate menu manage with extract view
-            if number_view == 0:
-                self._parse_menu()
-                self._parse_action_server()
+
+    def parse_menu(self):
+        self._parse_menu()
+        self._parse_action_server()
 
     def _parse_action_server(self):
         # Search comment node associated to action_server
