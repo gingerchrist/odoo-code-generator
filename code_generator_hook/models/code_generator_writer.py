@@ -6,14 +6,14 @@ from code_writer import CodeWriter
 from odoo import api, fields, models
 from odoo.models import MAGIC_COLUMNS
 
-MAGIC_FIELDS = MAGIC_COLUMNS + [
+MAGIC_FIELDS_MODELS = MAGIC_COLUMNS + [
     "display_name",
     "__last_update",
     "access_url",
     "access_token",
     "access_warning",
-    "name",
 ]
+MAGIC_FIELDS = MAGIC_FIELDS_MODELS + ["name"]
 BREAK_LINE = ["\n"]
 FROM_ODOO_IMPORTS_SUPERUSER = [
     "from odoo import _, api, models, fields, SUPERUSER_ID"
@@ -1088,16 +1088,171 @@ class CodeGeneratorWriter(models.Model):
                                     module, model_id.model, cw
                                 )
                                 cw.emit()
-                                # TODO add data nomenclator, research data from model
-                                # TODO By default, no data will be nomenclator
-                                # cw.emit("# Add data nomenclator")
-                                # cw.emit("value = {")
-                                # with cw.indent():
-                                #     cw.emit("\"field_boolean\": True,")
-                                #     cw.emit("\"name\": \"demo\",")
-                                # cw.emit("}")
-                                # cw.emit(f"env[\"{model_id.model}\"].create(value)")
-                                # cw.emit()
+                                # Nomenclator, export data
+                                data_export_ids = None
+                                if (
+                                    model_id.nomenclator
+                                    or module.template_auto_export_data
+                                ):
+                                    lst_model_exclude = [
+                                        a.strip()
+                                        for a in module.template_auto_export_data_exclude_model.split(
+                                            ";"
+                                        )
+                                    ]
+                                    if not lst_model_exclude or (
+                                        lst_model_exclude
+                                        and model_id.model
+                                        not in lst_model_exclude
+                                    ):
+                                        data_export_ids = self.env[
+                                            model_id.model
+                                        ].search([])
+                                if data_export_ids:
+                                    cw.emit("# Add data nomenclator")
+                                    for data_export_id in data_export_ids:
+                                        cw.emit("value = {")
+                                        with cw.indent():
+                                            for (
+                                                field_name,
+                                                dct_info,
+                                            ) in dct_field_data.items():
+                                                # for field_id in model_id.field_id:
+                                                #     if field_id.name not in MAGIC_FIELDS_MODELS:
+                                                #         value = getattr(data_export_id, field_id.name)
+                                                value = getattr(
+                                                    data_export_id, field_name
+                                                )
+
+                                                info_default = dct_info.get(
+                                                    "default", False
+                                                )
+                                                if (
+                                                    type(info_default) is tuple
+                                                    and info_default[0]
+                                                    == "noquote"
+                                                ):
+                                                    info_default = (
+                                                        info_default[1]
+                                                    )
+                                                if (
+                                                    dct_info.get("ttype")
+                                                    == "boolean"
+                                                ):
+                                                    if info_default is None:
+                                                        info_default = False
+                                                elif (
+                                                    dct_info.get("ttype")
+                                                    == "integer"
+                                                ):
+                                                    if info_default is None:
+                                                        info_default = 0
+                                                elif (
+                                                    dct_info.get("ttype")
+                                                    == "float"
+                                                ):
+                                                    if info_default is None:
+                                                        info_default = 0.0
+                                                if (
+                                                    value == info_default
+                                                    and dct_info.get(
+                                                        "required", False
+                                                    )
+                                                    is False
+                                                ):
+                                                    # Ignore default value
+                                                    continue
+
+                                                if dct_info.get("ttype") in [
+                                                    "boolean",
+                                                    "integer",
+                                                    "float",
+                                                ]:
+                                                    cw.emit(
+                                                        f'"{field_name}":'
+                                                        f" {value},"
+                                                    )
+                                                elif dct_info.get("ttype") in [
+                                                    "char",
+                                                    "text",
+                                                    "html",
+                                                    "selection",
+                                                ]:
+                                                    if value is False:
+                                                        continue
+                                                    if "\n" in value:
+                                                        pass
+                                                        # cw.emit(f'"{field_id.name}": """{value}""",')
+                                                    else:
+                                                        if '"' in value:
+                                                            cw.emit(
+                                                                f'"{field_name}":'
+                                                                f" '{value}',"
+                                                            )
+                                                        else:
+                                                            cw.emit(
+                                                                f'"{field_name}":'
+                                                                f' "{value}",'
+                                                            )
+                                                # elif field_id.ttype == "many2one":
+                                                #     cw.emit(f"\"{field_id.name}\": \"{value}\",")
+                                                else:
+                                                    _logger.warning(
+                                                        "Cannot support type"
+                                                        f" {dct_info.get('ttype')} when"
+                                                        " extract data."
+                                                    )
+                                        cw.emit("}")
+                                        cw.emit(
+                                            f'env["{model_id.model}"].create(value)'
+                                        )
+                                        model_data_id = self.env[
+                                            "ir.model.data"
+                                        ].search(
+                                            [
+                                                (
+                                                    "module",
+                                                    "=",
+                                                    module.template_module_name,
+                                                ),
+                                                ("model", "=", model_id.model),
+                                                (
+                                                    "res_id",
+                                                    "=",
+                                                    data_export_id.id,
+                                                ),
+                                            ]
+                                        )
+                                        if model_data_id:
+                                            with cw.block(
+                                                before="value =",
+                                                delim=("{", "}"),
+                                            ):
+                                                cw.emit(
+                                                    '"name":'
+                                                    f' "{model_data_id.name}",'
+                                                )
+                                                cw.emit(
+                                                    '"model":'
+                                                    f' "{model_data_id.model}",'
+                                                )
+                                                cw.emit(
+                                                    '"module":'
+                                                    f' "{model_data_id.module}",'
+                                                )
+                                                cw.emit(
+                                                    '"res_id":'
+                                                    f" {model_data_id.res_id},"
+                                                )
+                                                cw.emit(
+                                                    '"noupdate":'
+                                                    f" {model_data_id.noupdate},"
+                                                )
+                                            cw.emit(
+                                                'env["ir.model.data"].create(value)'
+                                            )
+                                        cw.emit()
+
                                 # Generate code
                                 self.write_code(cw, model_id, module)
 
@@ -1327,6 +1482,8 @@ class CodeGeneratorWriter(models.Model):
             # and model_id.description != model_id.name
         ):
             dct_model_data["description"] = model_id.description
+        if module.template_auto_export_data:
+            dct_model_data["nomenclator"] = True
         if model_id.order:
             dct_model_data["order"] = model_id.order
         if application_name.lower() == "demo":

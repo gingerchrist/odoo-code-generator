@@ -128,6 +128,15 @@ class CodeGeneratorModule(models.Model):
         default=".",
     )
 
+    template_auto_export_data = fields.Boolean()
+
+    template_auto_export_data_exclude_model = fields.Char(
+        help=(
+            "List of model separate by ; to be exclude from export data,"
+            " because it's internal data."
+        )
+    )
+
     template_generate_website_enable_javascript = fields.Boolean()
 
     template_generate_website_snippet_type = fields.Char(
