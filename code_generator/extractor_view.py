@@ -54,6 +54,7 @@ class ExtractorView:
     def parse_menu(self):
         self._parse_menu()
         self._parse_action_server()
+        self._parse_wizard()
 
     def _parse_action_server(self):
         # Search comment node associated to action_server
@@ -95,6 +96,24 @@ class ExtractorView:
                         result = self.env.ref(xml_id, raise_if_not_found=False)
                         if result:
                             result.comment = last_record.data.strip()
+
+    def _parse_wizard(self):
+        ir_model_data_ids = self.env["ir.model.data"].search(
+            [
+                ("model", "=", "ir.actions.act_window"),
+                ("module", "=", self._module.template_module_name),
+            ]
+        )
+        lst_id = [a.res_id for a in ir_model_data_ids]
+        ir_actions_act_window_wizard_ids = self.env[
+            "ir.actions.act_window"
+        ].search([("id", "in", lst_id), ("target", "=", "new")])
+        # for act_window_id in ir_actions_act_window_wizard_ids:
+        #     dct_act_value = {
+        #         "id_name": menu_name,
+        #         "name": menu_id.action.name,
+        #         "code_generator_id": self.code_generator_id.id,
+        #     }
 
     def _parse_menu(self):
         ir_model_data_ids = self.env["ir.model.data"].search(
@@ -152,6 +171,7 @@ class ExtractorView:
                         dct_act_value[
                             "view_mode"
                         ] = ir_actions_windows_id.view_mode
+                        dct_act_value["target"] = ir_actions_windows_id.target
                 # TODO why create act_window and not extract value
                 menu_action = self.env["code.generator.act_window"].create(
                     dct_act_value

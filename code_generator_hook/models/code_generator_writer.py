@@ -451,6 +451,11 @@ class CodeGeneratorWriter(models.Model):
                                 cw.emit(
                                     f'"view_mode": "{act_win_id.view_mode}",'
                                 )
+                            if (
+                                act_win_id.target
+                                and act_win_id.target != "current"
+                            ):
+                                cw.emit(f'"target": "{act_win_id.target}",')
                     cw.emit()
         cw.emit()
         if view_item.code_generator_id.code_generator_menus_id:

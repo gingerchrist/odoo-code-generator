@@ -67,6 +67,7 @@ class ExtractorModuleFile:
         self.search_field()
         # Fill method
         self.search_import()
+        self.search_model_inherit()
         self.search_method()
 
     def extract_lambda(self, node):
@@ -491,6 +492,15 @@ class ExtractorModuleFile:
             limit=1,
         ):
             self.module.env["code.generator.model.code.import"].create(d)
+
+    def search_model_inherit(self):
+        has_transient_model = False
+        if self.class_model_ast.bases:
+            for ast_base in self.class_model_ast.bases:
+                inherit_model_str = self._fill_search_field(ast_base)
+                has_transient_model = (
+                    inherit_model_str == "models.TransientModel"
+                )
 
     def search_method(self):
         use_astor = False
