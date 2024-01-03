@@ -127,16 +127,24 @@ class ExtractorView:
                 }
                 if menu_id.action.res_model:
                     dct_act_value["model_name"] = menu_id.action.res_model
+                    module_name_xml_id = (
+                        f"{self._module.template_module_name}.{menu_name}"
+                    )
                     ir_actions_windows = self.env[
                         "ir.actions.act_window"
                     ].search([("res_model", "=", menu_id.action.res_model)])
                     if ir_actions_windows:
                         # take first, but what to do with multiple action?
                         if len(ir_actions_windows) > 1:
-                            _logger.warning(
-                                "Multiple action windows for model"
-                                f" '{menu_id.action.res_model}'"
-                            )
+                            for ir_act_id in ir_actions_windows:
+                                if ir_act_id.xml_id == module_name_xml_id:
+                                    ir_actions_windows = [ir_act_id]
+                                    break
+                            else:
+                                _logger.warning(
+                                    "Multiple action windows for model"
+                                    f" '{menu_id.action.res_model}'"
+                                )
                         ir_actions_windows_id = ir_actions_windows[0]
                         dct_act_value[
                             "view_type"
