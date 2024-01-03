@@ -3172,9 +3172,18 @@ _logger = logging.getLogger(__name__)"""
                     else:
                         if "\n" in copy_value:
                             has_endline = True
-                            lst_field_attribute.append(
-                                f"{key}='''{copy_value}'''"
-                            )
+                            if '"""' in copy_value:
+                                lst_field_attribute.append(
+                                    f"{key}='''{copy_value}'''"
+                                )
+                            elif "'''" in copy_value:
+                                lst_field_attribute.append(
+                                    f'{key}="""{copy_value}"""'
+                                )
+                            else:
+                                lst_field_attribute.append(
+                                    f'{key}="""{copy_value}"""'
+                                )
                         else:
                             lst_field_attribute.append(f"{key}='{copy_value}'")
             elif type(value) is list or type(value) is tuple:

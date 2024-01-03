@@ -2157,6 +2157,11 @@ pass''',
                 dct_item["attrs"] = item.attrs
             dct_item = self._order_attributes_item(dct_item)
             item_xml = E.div(dct_item, *lst_child_update)
+        elif item.item_type == "p":
+            if item.attrs:
+                dct_item["attrs"] = item.attrs
+            dct_item = self._order_attributes_item(dct_item)
+            item_xml = E.p(dct_item, *lst_child_update)
         elif item.item_type == "h1":
             if item.attrs:
                 dct_item["attrs"] = item.attrs
@@ -2325,7 +2330,8 @@ pass''',
                 lst_item_title.append(view_item)
             else:
                 _logger.warning(
-                    f"View item '{view_item.section_type}' is not supported."
+                    f"View item section '{view_item.section_type}' is not"
+                    " supported."
                 )
 
         lst_item_form = []
@@ -2593,6 +2599,7 @@ pass''',
             "m2o_model": code_generator_view_id.m2o_model.id,
         }
         if code_generator_view_id.inherit_view_name:
+            # TODO validate module is installed before assign inherit_id
             dct_view_value["inherit_id"] = self.env.ref(
                 code_generator_view_id.inherit_view_name
             ).id

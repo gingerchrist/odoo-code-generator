@@ -902,6 +902,7 @@ class ExtractorView:
             "h5",
             "notebook",
             "page",
+            "p",
         ):
             if lst_node:
                 # Check cached of nodes
@@ -1002,6 +1003,16 @@ class ExtractorView:
                     dct_attributes["button_type"] = "btn-primary"
                 elif "btn-secondary" in button_type_value:
                     dct_attributes["button_type"] = "btn-secondary"
+                elif "btn-default" in button_type_value:
+                    dct_attributes["button_type"] = "btn-default"
+                elif "btn-link" in button_type_value:
+                    dct_attributes["button_type"] = "btn-link"
+                elif "btn-success" in button_type_value:
+                    dct_attributes["button_type"] = "btn-success"
+                elif "btn-warning" in button_type_value:
+                    dct_attributes["button_type"] = "btn-warning"
+                elif "btn-danger" in button_type_value:
+                    dct_attributes["button_type"] = "btn-danger"
                 else:
                     _logger.warning(
                         "Cannot support multiple value in button_type, value"

@@ -93,13 +93,13 @@ class CodeGeneratorViewItem(models.Model):
         help="Example fa-television. Only supported with button."
     )
 
-    is_help = fields.Boolean(string="Help")
+    is_help = fields.Boolean()
 
-    is_invisible = fields.Boolean(string="Invisible")
+    is_invisible = fields.Boolean()
 
-    is_readonly = fields.Boolean(string="Readonly")
+    is_readonly = fields.Boolean()
 
-    is_required = fields.Boolean(string="Required")
+    is_required = fields.Boolean()
 
     item_type = fields.Selection(
         selection=[
@@ -124,6 +124,7 @@ class CodeGeneratorViewItem(models.Model):
             ("h5", "Header 5"),
             ("notebook", "Notebook"),
             ("page", "Page"),
+            ("p", "Paragraph"),
         ],
         default="field",
         help="Choose item type to generate.",

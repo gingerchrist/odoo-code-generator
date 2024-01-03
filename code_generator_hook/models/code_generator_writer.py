@@ -1954,14 +1954,23 @@ class CodeGeneratorWriter(models.Model):
                     for code_id in code_ids:
                         with cw.block(delim=("{", "}")):
                             lst_line = code_id.code.split("\n")
+                            char_str_sep = (
+                                "'''"
+                                if '"""' in code_id.code
+                                or code_id.code.strip()[-1] == '"'
+                                else '"""'
+                            )
                             if len(lst_line) == 1:
-                                cw.emit(f"\"code\": '''{lst_line[0]}''',")
+                                cw.emit(
+                                    '"code":'
+                                    f" {char_str_sep}{lst_line[0]}{char_str_sep},"
+                                )
                             else:
-                                cw.emit(f"\"code\": '''{lst_line[0]}")
+                                cw.emit(f'"code": {char_str_sep}{lst_line[0]}')
                             for line in lst_line[1:-1]:
                                 cw.emit_raw(line + "\n")
                             if len(lst_line) > 1:
-                                cw.emit_raw(f"{lst_line[-1]}''',\n")
+                                cw.emit_raw(f"{lst_line[-1]}{char_str_sep},\n")
                             cw.emit(f'"name": "{code_id.name}",')
                             if code_id.decorator:
                                 cw.emit(f'"decorator": "{code_id.decorator}",')
