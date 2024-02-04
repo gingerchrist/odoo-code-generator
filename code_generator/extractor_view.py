@@ -1042,6 +1042,7 @@ class ExtractorView:
                 elif "btn-danger" in button_type_value:
                     dct_attributes["button_type"] = "btn-danger"
                 else:
+                    del dct_attributes["button_type"]
                     _logger.warning(
                         "Cannot support multiple value in button_type, value"
                         f" : {button_type_value}"
