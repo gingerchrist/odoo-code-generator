@@ -2953,7 +2953,10 @@ _logger = logging.getLogger(__name__)"""
                                     :63
                                 ].trim("_")
                         dct_field_attribute["relation"] = new_relation_table
-                domain_info = extra_info.get("domain")
+                if extra_info:
+                    domain_info = extra_info.get("domain")
+                else:
+                    domain_info = ""
                 if f2export.domain and f2export.domain != "[]":
                     dct_field_attribute["domain"] = f2export.domain
                 elif domain_info and domain_info != "[]":
