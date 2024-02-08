@@ -59,7 +59,7 @@ class PythonControllerWriter:
 
             cw.emit(
                 "class"
-                f" {self._module.name.replace('_', ' ').title().replace(' ', '')}Controller({str_inherit_class}):"
+                f" {self._module.name.replace('.', ' ').replace('_', ' ').title().replace(' ', '')}Controller({str_inherit_class}):"
             )
 
             with cw.indent():
