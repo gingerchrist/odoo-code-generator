@@ -582,9 +582,33 @@ class CodeGeneratorModule(models.Model):
                         )
                     ]
                 else:
-                    _logger.error(
-                        f"Cannot found rec_name for model {model_model}."
-                    )
+                    # Step 1, search a random char
+                    lst_field_id_type_char = [
+                        name
+                        for name, info in dct_field.items()
+                        if info.get("ttype") in ["char", "text"]
+                    ]
+                    if lst_field_id_type_char:
+                        field_id_type_char = lst_field_id_type_char[0]
+                        value["rec_name"] = field_id_type_char
+                    else:
+                        # Step 2, if not found, create name
+                        _logger.warning(
+                            f"Missing rec_name for model {model_model}, force"
+                            " create field 'name' type char."
+                        )
+                        value["rec_name"] = "name"
+                        value["field_id"].append(
+                            (
+                                0,
+                                0,
+                                {
+                                    "name": "name",
+                                    "field_description": "Name",
+                                    "ttype": "char",
+                                },
+                            )
+                        )
 
             model_id = self.env["ir.model"].create(value)
 
