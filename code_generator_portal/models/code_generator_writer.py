@@ -88,6 +88,24 @@ class CodeGenerator(models.Model):
         help="This will activate create form for all model.",
     )
 
+    portal_enable_read = fields.Boolean(
+        string="Enable portal read",
+        default=False,
+        help="This will activate read form for all model.",
+    )
+
+    portal_enable_update = fields.Boolean(
+        string="Enable portal update",
+        default=False,
+        help="This will activate update form for all model.",
+    )
+
+    portal_enable_delete = fields.Boolean(
+        string="Enable portal delete",
+        default=False,
+        help="This will activate delete form for all model.",
+    )
+
 
 class CodeGeneratorWriter(models.Model):
     _inherit = "code.generator.writer"
