@@ -1041,6 +1041,10 @@ class ExtractorView:
                     dct_attributes["button_type"] = "btn-warning"
                 elif "btn-danger" in button_type_value:
                     dct_attributes["button_type"] = "btn-danger"
+                elif "oe_highlight" in button_type_value:
+                    dct_attributes["button_type"] = "oe_highlight"
+                elif "oe_stat_button" in button_type_value:
+                    dct_attributes["button_type"] = "oe_stat_button"
                 else:
                     del dct_attributes["button_type"]
                     _logger.warning(
